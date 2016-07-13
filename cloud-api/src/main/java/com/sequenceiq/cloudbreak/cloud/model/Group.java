@@ -8,6 +8,7 @@ import com.sequenceiq.cloudbreak.api.model.InstanceGroupType;
 public class Group {
 
     private final String name;
+    private final String templateSpecifiGroupcName;
     private final InstanceGroupType type;
     private final List<CloudInstance> instances;
     private final Security security;
@@ -17,6 +18,7 @@ public class Group {
         this.type = type;
         this.instances = ImmutableList.copyOf(instances);
         this.security = security;
+        this.templateSpecifiGroupcName = name.replaceAll("_", "");
     }
 
     public String getName() {
@@ -33,5 +35,9 @@ public class Group {
 
     public Security getSecurity() {
         return security;
+    }
+
+    public String getTemplateSpecificGroupName() {
+        return templateSpecifiGroupcName;
     }
 }

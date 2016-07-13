@@ -21,13 +21,16 @@ public class ArmInstanceView {
     private String attachedDiskStorage;
     private String attachedDiskStorageType;
     private String groupName;
+    private String templateSpecificName;
 
-    public ArmInstanceView(InstanceTemplate instance, InstanceGroupType type, String attachedDiskStorage, String attachedDiskStorageType, String groupName) {
+    public ArmInstanceView(InstanceTemplate instance, InstanceGroupType type, String attachedDiskStorage, String attachedDiskStorageType, String groupName,
+            String templateSpecificName) {
         this.instance = instance;
         this.type = type;
         this.attachedDiskStorage = attachedDiskStorage;
         this.attachedDiskStorageType = attachedDiskStorageType;
         this.groupName = groupName;
+        this.templateSpecificName = templateSpecificName;
     }
 
     /**
@@ -92,6 +95,10 @@ public class ArmInstanceView {
         } catch (JsonProcessingException e) {
             return generateMetadata().toString();
         }
+    }
+
+    public String getTemplateSpecificName() {
+        return templateSpecificName;
     }
 
     private Map<String, String> generateMetadata() {

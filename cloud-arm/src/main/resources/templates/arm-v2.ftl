@@ -103,7 +103,7 @@
       "staticIpRef": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('gatewaystaticipname'))]",
       "ilbBackendAddressPoolName": "${stackname}bapn",
       <#list igs as group>
-      "${group?replace('_', '')}secGroupName": "${group?replace('_', '')}${stackname}sg",
+      "${group}secGroupName": "${group}${stackname}sg",
       </#list>
       "lbID": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'))]",
       "sshIPConfig": "[concat(variables('lbID'),'/frontendIPConfigurations/', parameters('sshIPConfigName'))]",
@@ -117,7 +117,7 @@
                  "type": "Microsoft.Network/virtualNetworks",
                  "dependsOn": [
                     <#list igs as group>
-                        "[concat('Microsoft.Network/networkSecurityGroups/', variables('${group?replace('_', '')}secGroupName'))]"<#if (group_index + 1) != igs?size>,</#if>
+                        "[concat('Microsoft.Network/networkSecurityGroups/', variables('${group}secGroupName'))]"<#if (group_index + 1) != igs?size>,</#if>
                     </#list>
                  ],
                  "name": "[parameters('virtualNetworkNamePrefix')]",
@@ -143,7 +143,7 @@
              {
                "apiVersion": "2015-05-01-preview",
                "type": "Microsoft.Network/networkSecurityGroups",
-               "name": "[variables('${group?replace('_', '')}secGroupName')]",
+               "name": "[variables('${group}secGroupName')]",
                "location": "[parameters('region')]",
                "properties": {
                "securityRules": [
@@ -262,12 +262,12 @@
                        <#if !existingVPC>
                        ,"[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkNamePrefix'))]"
                        </#if>
-                       ,"[concat('Microsoft.Network/networkSecurityGroups/', variables('${instance.groupName?replace('_', '')}secGroupName'))]"
+                       ,"[concat('Microsoft.Network/networkSecurityGroups/', variables('${instance.templateSpecifiGroupcName}secGroupName'))]"
                    ],
 
                    "properties": {
                        "networkSecurityGroup":{
-                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('${instance.groupName?replace('_', '')}secGroupName'))]"
+                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('${instance.templateSpecifiGroupcName}secGroupName'))]"
                        },
                        "ipConfigurations": [
                            {

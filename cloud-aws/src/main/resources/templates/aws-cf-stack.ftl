@@ -286,7 +286,7 @@
     </#if>
 
     <#list instanceGroups as group>
-	"AmbariNodes${group.groupName?replace('_', '')}" : {
+	"${group.ambariNodes}" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       <#if !existingSubnet>
       "DependsOn" : [ "PublicSubnetRouteTableAssociation", "PublicRoute" ],
@@ -298,7 +298,7 @@
         <#else>
         "VPCZoneIdentifier" : [{ "Ref" : "SubnetId" }],
         </#if>
-        "LaunchConfigurationName" : { "Ref" : "AmbariNodeLaunchConfig${group.groupName?replace('_', '')}" },
+        "LaunchConfigurationName" : { "Ref" : "${group.ambariNodeLaunchConfig}" },
         "MinSize" : 1,
         "MaxSize" : ${group.instanceCount},
         "DesiredCapacity" : ${group.instanceCount},
@@ -308,7 +308,7 @@
       }
     },
 
-    "AmbariNodeLaunchConfig${group.groupName?replace('_', '')}"  : {
+    "${group.ambariNodeLaunchConfig}"  : {
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
       "Properties" : {
         <#if group.ebsOptimized == true>
@@ -328,27 +328,26 @@
               "VolumeType" : "gp2"
             }
           }
-		  <#assign seq = ["b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]>
-			<#list seq as x>
-			<#if x_index = group.volumeCount><#break></#if>
+			<#list group.awsVolumeViews as awsVolumeView>
+			<#if awsVolumeView.index = group.volumeCount><#break></#if>
   		  ,{
-          	"DeviceName" : "/dev/xvd${x}",
-          	<#if group.volumeType == "ephemeral">
-            "VirtualName" : "ephemeral${x_index}"
+          	"DeviceName" : "/dev/${awsVolumeView.device}",
+          	<#if volume.volumeType == "ephemeral">
+            "VirtualName" : "ephemeral${awsVolumeView.index}"
             <#else>
             "Ebs" : {
             <#if group.ebsEncrypted == true>
               "SnapshotId" : "${snapshotId}",
             </#if>
-              "VolumeSize" : ${group.volumeSize},
-              "VolumeType" : "${group.volumeType}"
+              "VolumeSize" : ${awsVolumeView.volume.size},
+              "VolumeType" : "${awsVolumeView.volume.type}"
             }
             </#if>
       	  }
 			</#list>
       	],
         "ImageId"        : { "Ref" : "AMI" },
-        "SecurityGroups" : [ { "Ref" : "ClusterNodeSecurityGroup${group.groupName?replace('_', '')}" } ],
+        "SecurityGroups" : [ { "Ref" : "${group.securityGroupName}" } ],
         "InstanceType"   : "${group.flavor}",
         "KeyName"        : { "Ref" : "KeyName" },
         <#if group.spotPrice??>
@@ -363,7 +362,7 @@
       }
     },
 
-    "ClusterNodeSecurityGroup${group.groupName?replace('_', '')}" : {
+    "${group.securityGroupName}" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "GroupDescription" : "Allow access from web and bastion as well as outbound HTTP and HTTPS traffic",

@@ -27,10 +27,10 @@ public class ArmStackView {
                 InstanceTemplate template = instance.getTemplate();
                 String attachedDiskStorageName = armStorageView.getAttachedDiskStorageName(template);
                 ArmInstanceView azureInstance = new ArmInstanceView(template, group.getType(), attachedDiskStorageName,
-                        template.getVolumeType(), group.getName());
+                        template.getVolumeType(), group.getName(), group.getTemplateSpecificGroupName());
                 existingInstances.add(azureInstance);
             }
-            instanceGroups.add(group.getName());
+            instanceGroups.add(group.getTemplateSpecificGroupName());
         }
     }
 
