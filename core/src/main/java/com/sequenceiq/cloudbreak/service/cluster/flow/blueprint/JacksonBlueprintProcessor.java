@@ -154,6 +154,25 @@ public class JacksonBlueprintProcessor implements BlueprintProcessor {
     }
 
     @Override
+    public String getHostgroupByComponent(String blueprintText, String component) {
+        try {
+            ObjectNode root = (ObjectNode) JsonUtil.readTree(blueprintText);
+            ArrayNode hostGroupsNode = (ArrayNode) root.path(HOST_GROUPS_NODE);
+            Iterator<JsonNode> hostGroups = hostGroupsNode.elements();
+            while (hostGroups.hasNext()) {
+                JsonNode hostGroupNode = hostGroups.next();
+                String hostGroupName = hostGroupNode.path("name").textValue();
+                if (componentExistsInHostgroup(component, hostGroupNode)) {
+                    return hostGroupName;
+                }
+            }
+            return null;
+        } catch (IOException e) {
+            throw new BlueprintProcessingException("Failed to get component('" + component + "') from the blueprint.", e);
+        }
+    }
+
+    @Override
     public String addComponentToHostgroups(String component, Collection<String> hostGroupNames, String blueprintText) {
         try {
             ObjectNode root = (ObjectNode) JsonUtil.readTree(blueprintText);

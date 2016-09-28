@@ -110,6 +110,7 @@ public class ModelDescriptions {
         public static final String BLUEPRINT_INPUTS = "blueprint inputs in the cluster";
         public static final String CLUSTER_ATTRIBUTES = "Additional information for ambari cluster";
         public static final String RDSCONFIG_ID = "RDS configuration id for the cluster";
+        public static final String RANGERCONFIG_ID = "Ranger configuration id for the cluster";
         public static final String LDAP_CONFIG_ID = "LDAP config id for the cluster";
     }
 

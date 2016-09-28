@@ -47,6 +47,8 @@ public class ClusterResponse {
     private AmbariStackDetailsJson ambariStackDetails;
     @ApiModelProperty(ClusterModelDescription.RDSCONFIG_ID)
     private Long rdsConfigId;
+    @ApiModelProperty(ClusterModelDescription.RANGERCONFIG_ID)
+    private Long rangerConfigId;
     @ApiModelProperty(ClusterModelDescription.SERVICE_ENDPOINT_MAP)
     private Map<String, String> serviceEndPoints = new HashMap<>();
     @ApiModelProperty(ClusterModelDescription.CONFIG_STRATEGY)
@@ -251,5 +253,13 @@ public class ClusterResponse {
 
     public void setBlueprintInputs(Set<BlueprintInputJson> blueprintInputs) {
         this.blueprintInputs = blueprintInputs;
+    }
+
+    public Long getRangerConfigId() {
+        return rangerConfigId;
+    }
+
+    public void setRangerConfigId(Long rangerConfigId) {
+        this.rangerConfigId = rangerConfigId;
     }
 }

@@ -18,5 +18,7 @@ public interface BlueprintProcessor {
 
     String modifyHdpVersion(String originalBlueprint, String hdpVersion);
 
+    String getHostgroupByComponent(String blueprintText, String component);
+
     String addComponentToHostgroups(String component, Collection<String> hostGroupNames, String blueprintText);
 }

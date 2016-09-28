@@ -65,6 +65,8 @@ public class ClusterRequest {
     private AmbariRepoDetailsJson ambariRepoDetailsJson;
     @ApiModelProperty(value = ClusterModelDescription.RDSCONFIG_ID)
     private Long rdsConfigId;
+    @ApiModelProperty(value = ClusterModelDescription.RANGERCONFIG_ID)
+    private Long rangerConfigId;
     @Valid
     private AmbariDatabaseDetailsJson ambariDatabaseDetails;
     @Valid
@@ -276,5 +278,13 @@ public class ClusterRequest {
 
     public void setBlueprintInputs(Set<BlueprintInputJson> blueprintInputs) {
         this.blueprintInputs = blueprintInputs;
+    }
+
+    public Long getRangerConfigId() {
+        return rangerConfigId;
+    }
+
+    public void setRangerConfigId(Long rangerConfigId) {
+        this.rangerConfigId = rangerConfigId;
     }
 }

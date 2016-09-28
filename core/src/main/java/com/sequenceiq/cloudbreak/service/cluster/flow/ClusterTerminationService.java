@@ -110,6 +110,7 @@ public class ClusterTerminationService {
         cluster.setStack(null);
         cluster.setSssdConfig(null);
         cluster.setRdsConfig(null);
+        cluster.setRangerConfig(null);
         cluster.setStatus(DELETE_COMPLETED);
         deleteClusterHostGroupsWithItsMetadata(cluster);
         componentConfigProvider.deleteComponentsForStack(stackId);

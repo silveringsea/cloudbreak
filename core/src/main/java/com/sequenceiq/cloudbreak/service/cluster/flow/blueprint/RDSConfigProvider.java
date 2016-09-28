@@ -4,12 +4,17 @@ package com.sequenceiq.cloudbreak.service.cluster.flow.blueprint;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.sequenceiq.cloudbreak.domain.RDSConfig;
 
 @Component
 public class RDSConfigProvider {
+
+    @Inject
+    private BlueprintProcessor blueprintProcessor;
 
     public List<BlueprintConfigurationEntry> getConfigs(RDSConfig rdsConfig) {
         List<BlueprintConfigurationEntry> bpConfigs = new ArrayList<>();

@@ -36,7 +36,8 @@ public class ClusterDecorator implements Decorator<Cluster> {
         VALIDATE_BLUEPRINT,
         SSSDCONFIG_ID,
         RDSCONFIG_ID,
-        LDAP_CONFIG_ID;
+        LDAP_CONFIG_ID,
+        RANGERCONFIG_ID;
     }
 
     @Inject
@@ -97,6 +98,11 @@ public class ClusterDecorator implements Decorator<Cluster> {
             LdapConfig ldapConfig = ldapConfigService.get(ldapConfigId);
             ldapConfigValidator.validateLdapConnection(ldapConfig);
             subject.setLdapConfig(ldapConfig);
+        }
+        Long rangerConfigId = (Long) data[DecorationData.RANGERCONFIG_ID.ordinal()];
+        if (data[DecorationData.RANGERCONFIG_ID.ordinal()] != null) {
+            RDSConfig rdsConfig = rdsConfigService.get(rangerConfigId);
+            subject.setRangerConfig(rdsConfig);
         }
         return subject;
     }

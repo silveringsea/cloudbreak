@@ -67,6 +67,7 @@ import com.sequenceiq.cloudbreak.domain.RDSConfig;
 import com.sequenceiq.cloudbreak.domain.Stack;
 import com.sequenceiq.cloudbreak.domain.Topology;
 import com.sequenceiq.cloudbreak.domain.TopologyRecord;
+import com.sequenceiq.cloudbreak.orchestrator.exception.CloudbreakOrchestratorFailedException;
 import com.sequenceiq.cloudbreak.repository.ClusterRepository;
 import com.sequenceiq.cloudbreak.repository.HostMetadataRepository;
 import com.sequenceiq.cloudbreak.repository.InstanceMetaDataRepository;
@@ -83,6 +84,7 @@ import com.sequenceiq.cloudbreak.service.cluster.flow.blueprint.AutoRecoveryConf
 import com.sequenceiq.cloudbreak.service.cluster.flow.blueprint.BlueprintConfigurationEntry;
 import com.sequenceiq.cloudbreak.service.cluster.flow.blueprint.BlueprintProcessor;
 import com.sequenceiq.cloudbreak.service.cluster.flow.blueprint.RDSConfigProvider;
+import com.sequenceiq.cloudbreak.service.cluster.flow.blueprint.RangerConfigProvider;
 import com.sequenceiq.cloudbreak.service.cluster.flow.blueprint.SmartSenseConfigProvider;
 import com.sequenceiq.cloudbreak.service.cluster.flow.blueprint.ZeppelinConfigProvider;
 import com.sequenceiq.cloudbreak.service.cluster.flow.filesystem.FileSystemConfigurator;
@@ -154,6 +156,8 @@ public class AmbariClusterConnector {
     @Inject
     private SmartSenseConfigProvider smartSenseConfigProvider;
     @Inject
+    private RangerConfigProvider rangerConfigProvider;
+    @Inject
     private ZeppelinConfigProvider zeppelinConfigProvider;
     @Inject
     private RDSConfigProvider rdsConfigProvider;
@@ -190,7 +194,7 @@ public class AmbariClusterConnector {
             String blueprintText = updateBlueprintWithInputs(cluster, cluster.getBlueprint());
 
             FileSystem fs = cluster.getFileSystem();
-            blueprintText = updateBlueprintConfiguration(stack, blueprintText, cluster.getRdsConfig(), fs);
+            blueprintText = updateBlueprintConfiguration(stack, blueprintText, cluster.getRdsConfig(), cluster.getRangerConfig(), fs);
 
             AmbariClient ambariClient = getAmbariClient(stack);
             setBaseRepoURL(stack, ambariClient);
@@ -241,8 +245,8 @@ public class AmbariClusterConnector {
         }
     }
 
-    private String updateBlueprintConfiguration(Stack stack, String blueprintText, RDSConfig rdsConfig, FileSystem fs)
-            throws IOException, CloudbreakImageNotFoundException {
+    private String updateBlueprintConfiguration(Stack stack, String blueprintText, RDSConfig rdsConfig, RDSConfig rangerConfig, FileSystem fs)
+            throws IOException, CloudbreakImageNotFoundException, CloudbreakOrchestratorFailedException {
         if (fs != null) {
             blueprintText = extendBlueprintWithFsConfig(blueprintText, fs, stack);
         }
@@ -257,6 +261,9 @@ public class AmbariClusterConnector {
         if (rdsConfig != null) {
             blueprintText = blueprintProcessor.addConfigEntries(blueprintText, rdsConfigProvider.getConfigs(rdsConfig), true);
             blueprintText = blueprintProcessor.removeComponentFromBlueprint("MYSQL_SERVER", blueprintText);
+        }
+        if (rangerConfigProvider.rangerIsConfigurable(rangerConfig)) {
+            blueprintText = rangerConfigProvider.addToBlueprint(rangerConfig, blueprintText);
         }
         blueprintText = autoRecoveryConfigProvider.addToBlueprint(blueprintText);
         return blueprintText;

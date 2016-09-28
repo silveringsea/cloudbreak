@@ -245,6 +245,41 @@ public class JacksonBlueprintProcessorTest {
         Assert.assertEquals(testBlueprint.replaceAll("\\s", ""), result);
     }
 
+    @Test
+    public void testAddComponentToHostgroupsRanger() throws Exception {
+        String testBlueprint = FileReaderUtils.readFileFromClasspath("blueprints/test-bp-ranger.bp");
+
+        List<BlueprintConfigurationEntry> bpConfigs = new ArrayList<>();
+
+        bpConfigs.add(new BlueprintConfigurationEntry("admin-properties", "db_root_user", "test1"));
+        bpConfigs.add(new BlueprintConfigurationEntry("admin-properties", "db_root_password", "test1"));
+        bpConfigs.add(new BlueprintConfigurationEntry("admin-properties", "db_user", "test1"));
+        bpConfigs.add(new BlueprintConfigurationEntry("admin-properties", "db_password", "test1"));
+        bpConfigs.add(new BlueprintConfigurationEntry("admin-properties", "db_name", "test1"));
+        bpConfigs.add(new BlueprintConfigurationEntry("admin-properties", "db_host", "test1"));
+        bpConfigs.add(new BlueprintConfigurationEntry("admin-properties", "policymgr_external_url", "hdfs://%HOSTGROUP::master%:6080"));
+        bpConfigs.add(new BlueprintConfigurationEntry("admin-properties", "DB_FLAVOR", "test1"));
+
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-env", "ranger_admin_password", "test1"));
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-env", "is_solrCloud_enabled", "true"));
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-env", "ranger-hdfs-plugin-enabled", "No"));
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-env", "ranger-hive-plugin-enabled", "Yes"));
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-env", "ranger-yarn-plugin-enabled", "No"));
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-env", "xasecure.audit.destination.hdfs.dir", "hdfs://%HOSTGROUP::master%:8020/ranger/audit"));
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-env", "ranger_privelege_user_jdbc_url", "test1"));
+
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-admin-site", "ranger.jpa.jdbc.driver", "test1"));
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-admin-site", "ranger.jpa.jdbc.url", "test1"));
+        bpConfigs.add(new BlueprintConfigurationEntry("ranger-admin-site", "ranger.audit.source.type", "solr"));
+
+        String result = underTest.addConfigEntries(testBlueprint, bpConfigs, true);
+
+        //Assert.assertEquals(testBlueprint.replaceAll("\\s", ""), result);
+    }
+
+
+
+
     private boolean componentExistsInHostgroup(String component, JsonNode hostGroupNode) {
         boolean componentExists = false;
         Iterator<JsonNode> components = hostGroupNode.path("components").elements();

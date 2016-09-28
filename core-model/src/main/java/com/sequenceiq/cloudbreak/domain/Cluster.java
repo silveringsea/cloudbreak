@@ -143,6 +143,9 @@ public class Cluster implements ProvisionEntity {
     private RDSConfig rdsConfig;
 
     @ManyToOne
+    private RDSConfig rangerConfig;
+
+    @ManyToOne
     private FileSystem fileSystem;
 
     @Enumerated(EnumType.STRING)
@@ -473,5 +476,13 @@ public class Cluster implements ProvisionEntity {
 
     public void setBlueprintInputs(Json blueprintInputs) {
         this.blueprintInputs = blueprintInputs;
+    }
+
+    public RDSConfig getRangerConfig() {
+        return rangerConfig;
+    }
+
+    public void setRangerConfig(RDSConfig rangerConfig) {
+        this.rangerConfig = rangerConfig;
     }
 }
