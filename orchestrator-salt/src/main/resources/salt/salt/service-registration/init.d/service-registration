@@ -9,7 +9,6 @@
 # processname: service-registration
 
 NAME=service-registration
-PROG=/usr/local/bin/$NAME
 
 get_pid() {
     ps -o pid= -C $NAME
@@ -25,7 +24,7 @@ case "$1" in
         echo "Already started"
     else
         echo "Starting ${NAME}"
-        $PROG &> /dev/null &
+        /usr/local/bin/$NAME &
     fi
     ;;
     stop)
