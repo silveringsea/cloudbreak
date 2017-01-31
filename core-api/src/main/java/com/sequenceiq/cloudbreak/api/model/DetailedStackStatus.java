@@ -13,6 +13,7 @@ public enum DetailedStackStatus {
     PROVISION_FAILED(Status.CREATE_FAILED),
     // Orchestration statuses
     BOOTSTRAPPING_MACHINES(Status.UPDATE_IN_PROGRESS),
+    CLUSTER_TLS_SETUP(Status.UPDATE_IN_PROGRESS),
     COLLECTING_HOST_METADATA(Status.UPDATE_IN_PROGRESS),
     STARTING_AMBARI_SERVICES(Status.UPDATE_IN_PROGRESS),
     // Start statuses

@@ -1,14 +1,14 @@
 #!/bin/bash
 
-setup_cbclient_cert() {
-  sudo mkdir -p /etc/certs
-  sudo cp /tmp/cb-client.pem /etc/certs
+wait_for_salt_bootstrap() {
+  while ! curl -s -m 5 127.0.0.1:7070/saltboot/health; do echo -n .; sleep 1; done
 }
 
-create_certificates() {
-  echo n | sudo cert-tool -d=/etc/certs -o=gateway -s localhost -s 127.0.0.1 -s ${publicIp}
-  sudo rm /etc/certs/client-key.pem /etc/certs/client.pem /etc/certs/ca-key.pem
-  sudo cp /etc/certs/server.pem /tmp/server.pem
+generate_ca_cert() {
+  curl 127.0.0.1:7070/saltboot/ca
+  body=$(jq -n "{servers: [{name:\"\", address: \"127.0.0.1\"}], PublicIP: \"${publicIp}\"}" -c)
+  pass=$(sudo cat /etc/salt-bootstrap/security-config.yml | grep password | cut -d" " -f2)
+  curl -X POST -u "cbadmin:$pass" -d "$body" 127.0.0.1:7070/saltboot/clientcreds
 }
 
 start_nginx() {
@@ -20,8 +20,8 @@ start_nginx() {
 }
 
 setup_tls() {
-  setup_cbclient_cert
-  create_certificates
+  wait_for_salt_bootstrap
+  generate_ca_cert
   start_nginx
 }
 

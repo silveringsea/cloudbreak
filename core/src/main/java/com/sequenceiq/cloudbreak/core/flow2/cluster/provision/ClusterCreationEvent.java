@@ -9,6 +9,8 @@ import com.sequenceiq.cloudbreak.reactor.api.event.cluster.StartAmbariFailed;
 import com.sequenceiq.cloudbreak.reactor.api.event.cluster.StartAmbariSuccess;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.BootstrapMachinesFailed;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.BootstrapMachinesSuccess;
+import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.ClusterTLSSetupFailed;
+import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.ClusterTLSSetupSuccess;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.HostMetadataSetupFailed;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.HostMetadataSetupSuccess;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.StartAmbariServicesFailed;
@@ -19,6 +21,8 @@ public enum ClusterCreationEvent implements FlowEvent {
     CLUSTER_INSTALL_EVENT(FlowTriggers.CLUSTER_INSTALL_TRIGGER_EVENT),
     BOOTSTRAP_MACHINES_FINISHED_EVENT(EventSelectorUtil.selector(BootstrapMachinesSuccess.class)),
     BOOTSTRAP_MACHINES_FAILED_EVENT(EventSelectorUtil.selector(BootstrapMachinesFailed.class)),
+    CLUSTER_TLS_SETUP_FINISHED_EVENT(EventSelectorUtil.selector(ClusterTLSSetupSuccess.class)),
+    CLUSTER_TLS_SETUP_FAILED_EVENT(EventSelectorUtil.selector(ClusterTLSSetupFailed.class)),
     HOST_METADATASETUP_FINISHED_EVENT(EventSelectorUtil.selector(HostMetadataSetupSuccess.class)),
     HOST_METADATASETUP_FAILED_EVENT(EventSelectorUtil.selector(HostMetadataSetupFailed.class)),
     START_AMBARI_SERVICES_FINISHED_EVENT(EventSelectorUtil.selector(StartAmbariServicesSuccess.class)),

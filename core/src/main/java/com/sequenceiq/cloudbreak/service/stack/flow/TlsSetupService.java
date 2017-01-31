@@ -228,7 +228,7 @@ public class TlsSetupService {
     }
 
     private void downloadAndSavePrivateKey(Stack stack, SSHClient ssh) throws IOException, CloudbreakSecuritySetupException {
-        ssh.newSCPFileTransfer().download("/tmp/server.pem", tlsSecurityService.getCertDir(stack.getId()) + "/ca.pem");
+        ssh.newSCPFileTransfer().download("/etc/certs/ca.crt", tlsSecurityService.getCertDir(stack.getId()) + "/ca.pem");
         Stack stackWithSecurity = stackRepository.findByIdWithSecurityConfig(stack.getId());
         SecurityConfig securityConfig = stackWithSecurity.getSecurityConfig();
         securityConfig.setServerCert(BaseEncoding.base64().encode(tlsSecurityService.readServerCert(stack.getId()).getBytes()));

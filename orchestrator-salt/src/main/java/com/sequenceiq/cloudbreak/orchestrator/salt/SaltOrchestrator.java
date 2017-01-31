@@ -6,7 +6,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,8 +27,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.inject.Inject;
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
+import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -126,6 +139,45 @@ public class SaltOrchestrator implements HostOrchestrator {
             LOGGER.error("Error occurred during salt upscale", e);
             throw new CloudbreakOrchestratorFailedException(e);
         }
+    }
+
+    @Override
+    public void setupTLS(GatewayConfig gatewayConfig, Set<Node> targets, ExitCriteriaModel exitCriteriaModel)
+            throws CloudbreakOrchestratorException {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(2048, new SecureRandom());
+            KeyPair keypair = keyGen.generateKeyPair();
+            PrivateKey privateKey = keypair.getPrivate();
+            PublicKey publicKey = keypair.getPublic();
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            OutputStreamWriter output = new OutputStreamWriter(byteArrayOutputStream);
+            JcaPEMWriter pem = new JcaPEMWriter(output);
+            pem.writeObject(privateKey);
+            byteArrayOutputStream.close();
+            pem.close();
+
+            System.out.println(byteArrayOutputStream);
+            System.out.println(generatePKCS10(publicKey, privateKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String generatePKCS10(PublicKey publicKey, PrivateKey privateKey) throws Exception {
+        PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
+                new X500Principal("C=US, ST=CA, O=Hortonworks, OU=Cloudbreak, CN=server.dc1.consul"), publicKey);
+        JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256withRSA");
+        ContentSigner signer = csBuilder.build(privateKey);
+        PKCS10CertificationRequest csr = p10Builder.build(signer);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        OutputStreamWriter output = new OutputStreamWriter(byteArrayOutputStream);
+        JcaPEMWriter pem = new JcaPEMWriter(output);
+        pem.writeObject(csr);
+        byteArrayOutputStream.close();
+        pem.close();
+        return byteArrayOutputStream.toString();
     }
 
     @Override

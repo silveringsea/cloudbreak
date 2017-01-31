@@ -23,6 +23,8 @@ import com.sequenceiq.cloudbreak.reactor.api.event.cluster.StartAmbariRequest;
 import com.sequenceiq.cloudbreak.reactor.api.event.cluster.StartAmbariSuccess;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.BootstrapMachinesRequest;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.BootstrapMachinesSuccess;
+import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.ClusterTLSSetupRequest;
+import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.ClusterTLSSetupSuccess;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.HostMetadataSetupRequest;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.HostMetadataSetupSuccess;
 import com.sequenceiq.cloudbreak.reactor.api.event.orchestration.StartAmbariServicesRequest;
@@ -49,11 +51,27 @@ public class ClusterCreationActions {
         };
     }
 
-    @Bean(name = "COLLECTING_HOST_METADATA_STATE")
-    public Action collectingHostMetadataAction() {
+    @Bean(name = "CLUSTER_TLS_SETUP_STATE")
+    public Action clusterTlsSetup() {
         return new AbstractStackCreationAction<BootstrapMachinesSuccess>(BootstrapMachinesSuccess.class) {
             @Override
             protected void doExecute(StackContext context, BootstrapMachinesSuccess payload, Map<Object, Object> variables) throws Exception {
+                clusterCreationService.setupClusterTls(context.getStack());
+                sendEvent(context);
+            }
+
+            @Override
+            protected Selectable createRequest(StackContext context) {
+                return new ClusterTLSSetupRequest(context.getStack().getId());
+            }
+        };
+    }
+
+    @Bean(name = "COLLECTING_HOST_METADATA_STATE")
+    public Action collectingHostMetadataAction() {
+        return new AbstractStackCreationAction<ClusterTLSSetupSuccess>(ClusterTLSSetupSuccess.class) {
+            @Override
+            protected void doExecute(StackContext context, ClusterTLSSetupSuccess payload, Map<Object, Object> variables) throws Exception {
                 clusterCreationService.collectingHostMetadata(context.getStack());
                 sendEvent(context);
             }
