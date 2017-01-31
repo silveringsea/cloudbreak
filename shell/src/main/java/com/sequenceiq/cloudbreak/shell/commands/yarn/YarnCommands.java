@@ -158,7 +158,7 @@ public class YarnCommands implements CommandMarker {
             @CliOption(key = "id", help = "Id of the yarn stack") Long id) {
         try {
             if (id != null) {
-                cloudbreakClient.stackEndpoint().delete(id, true);
+                cloudbreakClient.stackEndpoint().delete(id, true, false);
                 if (Objects.equals(id, shellContext.getSelectedYarnStackId())) {
                     shellContext.resetSelectedYarnStackId();
                     shellContext.setHint(Hints.YARN_CLUSTER);
@@ -166,7 +166,7 @@ public class YarnCommands implements CommandMarker {
                 return String.format("Yarn stack has been deleted, id: %s", id);
             } else if (name != null) {
                 StackResponse aPublic = cloudbreakClient.stackEndpoint().getPublic(name);
-                cloudbreakClient.stackEndpoint().deletePublic(name, true);
+                cloudbreakClient.stackEndpoint().deletePublic(name, true, false);
                 if (Objects.equals(aPublic.getId(), shellContext.getSelectedYarnStackId())) {
                     shellContext.resetSelectedYarnStackId();
                 }
