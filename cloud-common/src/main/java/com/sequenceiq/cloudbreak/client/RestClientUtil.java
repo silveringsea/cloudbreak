@@ -51,15 +51,18 @@ public class RestClientUtil {
         return client;
     }
 
-    public static Client createClient(String serverCert, String clientCert, String clientKey) throws Exception {
-        return createClient(serverCert, clientCert, clientKey, false, null);
-    }
-
     public static Client createClient(String serverCert, String clientCert, String clientKey, boolean debug, Class debugClass) throws Exception {
-        SSLContext sslContext = SSLContexts.custom()
-                .loadTrustMaterial(KeyStoreUtil.createTrustStore(serverCert), null)
-                .loadKeyMaterial(KeyStoreUtil.createKeyStore(clientCert, clientKey), "consul".toCharArray())
-                .build();
+        SSLContext sslContext;
+        if (clientKey != null & clientCert != null) {
+            sslContext = SSLContexts.custom()
+                    .loadTrustMaterial(KeyStoreUtil.createTrustStore(serverCert), null)
+                    .loadKeyMaterial(KeyStoreUtil.createKeyStore(clientCert, clientKey), "".toCharArray())
+                    .build();
+        } else {
+            sslContext = SSLContexts.custom()
+                    .loadTrustMaterial(KeyStoreUtil.createTrustStore(serverCert), null)
+                    .build();
+        }
 
         LOGGER.debug("Constructing jax rs client for config: server cert: {}, client cert: {}, debug: {}", serverCert, clientCert, debug);
         ClientConfig config = new ClientConfig();

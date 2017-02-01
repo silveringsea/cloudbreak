@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 import javax.inject.Inject;
 
@@ -48,12 +47,6 @@ public class TlsSecurityService {
     @Value("${cb.cert.dir:}")
     private String certDir;
 
-    @Value("#{'${cb.cert.dir:}/${cb.tls.cert.file:}'}")
-    private String clientCert;
-
-    @Value("#{'${cb.cert.dir:}/${cb.tls.private.key.file:}'}")
-    private String clientPrivateKey;
-
     @Inject
     private StackRepository stackRepository;
 
@@ -62,13 +55,14 @@ public class TlsSecurityService {
 
     public SecurityConfig storeSSHKeys(Long stackId) throws CloudbreakSecuritySetupException {
         try {
+            File directory = new File(getCertDir(stackId));
+            if (!directory.exists()) {
+                Files.createDirectories(Paths.get(getCertDir(stackId)));
+            }
             generateTempSshKeypair(stackId);
             SecurityConfig securityConfig = new SecurityConfig();
-            securityConfig.setClientKey(BaseEncoding.base64().encode(readClientKey(stackId).getBytes()));
-            securityConfig.setClientCert(BaseEncoding.base64().encode(readClientCert(stackId).getBytes()));
             securityConfig.setCloudbreakSshPrivateKey(BaseEncoding.base64().encode(readPrivateSshKey(stackId).getBytes()));
             securityConfig.setCloudbreakSshPublicKey(BaseEncoding.base64().encode(readPublicSshKey(stackId).getBytes()));
-
             return securityConfig;
         } catch (IOException | JSchException e) {
             throw new CloudbreakSecuritySetupException("Failed to generate temporary SSH key pair.", e);
@@ -139,6 +133,10 @@ public class TlsSecurityService {
         }
     }
 
+    public String getPublicSshKeyFileName(Long stackId) {
+        return SSH_KEY_PREFIX + stackId + SSH_PUBLIC_KEY_EXTENSION;
+    }
+
     private boolean checkSecurityFileExist(Long stackId, String fileName) throws CloudbreakSecuritySetupException {
         try {
             String path = Paths.get(getCertDir(stackId) + "/" + fileName).toString();
@@ -154,25 +152,6 @@ public class TlsSecurityService {
             throw new CloudbreakSecuritySetupException("Failed to check file: " + getCertDir(stackId) + "/" + fileName);
         }
         return true;
-    }
-
-    public void copyClientKeys(Long stackId) throws CloudbreakSecuritySetupException {
-        try {
-            Path stackCertDir = Paths.get(getCertDir(stackId));
-            File file = new File(stackCertDir.toString());
-            if (!file.exists()) {
-                Files.createDirectories(stackCertDir);
-            }
-            Files.copy(Paths.get(clientPrivateKey), Paths.get(stackCertDir + "/key.pem"), StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(Paths.get(clientCert), Paths.get(stackCertDir + "/cert.pem"), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new CloudbreakSecuritySetupException(String.format("Failed to copy client certificate to certificate directory."
-                    + " Check if '%s' and '%s' exist.", clientCert, clientPrivateKey), e);
-        }
-    }
-
-    public String getPublicSshKeyFileName(Long stackId) {
-        return SSH_KEY_PREFIX + stackId + SSH_PUBLIC_KEY_EXTENSION;
     }
 
     public String getPrivateSshKeyFileName(Long stackId) {
@@ -194,6 +173,7 @@ public class TlsSecurityService {
 
     public GatewayConfig buildGatewayConfig(Long stackId, String publicIp, Integer gatewayPort,
             String privateIp, String hostname, SaltClientConfig saltClientConfig, Boolean knoxGatewayEnabled) throws CloudbreakSecuritySetupException {
+        // TODO fix no certs yet
         prepareCertDir(stackId);
         HttpClientConfig conf = buildTLSClientConfig(stackId, publicIp);
         return new GatewayConfig(publicIp, privateIp, hostname, gatewayPort, prepareCertDir(stackId), conf.getServerCert(), conf.getClientCert(),

@@ -6,9 +6,11 @@ wait_for_salt_bootstrap() {
 
 generate_ca_cert() {
   curl 127.0.0.1:7070/saltboot/ca
-  body=$(jq -n "{servers: [{name:\"\", address: \"127.0.0.1\"}], PublicIP: \"${publicIp}\"}" -c)
+  body="{\"servers\": [{\"name\":\"\", \"address\": \"127.0.0.1\"}], \"PublicIP\": \"${publicIp}\"}"
   pass=$(sudo cat /etc/salt-bootstrap/security-config.yml | grep password | cut -d" " -f2)
   curl -X POST -u "cbadmin:$pass" -d "$body" 127.0.0.1:7070/saltboot/clientcreds
+  sudo cp /etc/certs/ca.crt /etc/certs/cb-ca.crt
+  sudo chmod 777 /etc/certs/cb-ca.crt
 }
 
 start_nginx() {

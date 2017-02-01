@@ -135,6 +135,7 @@ public class ClusterBootstrapper {
         try {
             InstanceGroup gateway = stack.getGatewayInstanceGroup();
             InstanceMetaData gatewayInstance = gateway.getInstanceMetaData().iterator().next();
+            // TODO there are no certs yet
             GatewayConfig gatewayConfig = gatewayConfigService.getGatewayConfig(stack, gatewayInstance, stack.getCluster().getEnableKnoxGateway());
             String gatewayIp = gatewayConfigService.getGatewayIp(stack, gatewayInstance);
             HostOrchestrator hostOrchestrator = hostOrchestratorResolver.get(stack.getOrchestrator().getType());

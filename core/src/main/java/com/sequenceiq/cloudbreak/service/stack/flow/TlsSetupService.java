@@ -15,7 +15,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.google.common.io.BaseEncoding;
@@ -77,9 +76,6 @@ public class TlsSetupService {
     @Inject
     private OrchestratorTypeResolver orchestratorTypeResolver;
 
-    @Value("#{'${cb.cert.dir:}/${cb.tls.cert.file:}'}")
-    private String tlsCertificatePath;
-
     public void setupTls(Stack stack, String publicIp, int sshPort, String user, Set<String> sshFingerprints) throws CloudbreakException {
         LOGGER.info("SSHClient parameters: stackId: {}, publicIp: {},  user: {}", stack.getId(), publicIp, user);
         if (publicIp == null) {
@@ -138,9 +134,6 @@ public class TlsSetupService {
             Credential credential) throws IOException {
         LOGGER.info("Setting up temporary ssh...");
         prepareSshConnection(ssh, ip, port, hostKeyVerifier, user, privateKeyLocation, credential);
-        String remoteTlsCertificatePath = "/tmp/cb-client.pem";
-        ssh.newSCPFileTransfer().upload(tlsCertificatePath, remoteTlsCertificatePath);
-        LOGGER.info("Temporary ssh setup finished succesfully, public key is uploaded to {}", remoteTlsCertificatePath);
     }
 
     private void prepareSshConnection(SSHClient ssh, String ip, int port, HostKeyVerifier hostKeyVerifier, String user, String privateKeyLocation,
@@ -228,7 +221,7 @@ public class TlsSetupService {
     }
 
     private void downloadAndSavePrivateKey(Stack stack, SSHClient ssh) throws IOException, CloudbreakSecuritySetupException {
-        ssh.newSCPFileTransfer().download("/etc/certs/ca.crt", tlsSecurityService.getCertDir(stack.getId()) + "/ca.pem");
+        ssh.newSCPFileTransfer().download("/etc/certs/cb-ca.crt", tlsSecurityService.getCertDir(stack.getId()) + "/ca.pem");
         Stack stackWithSecurity = stackRepository.findByIdWithSecurityConfig(stack.getId());
         SecurityConfig securityConfig = stackWithSecurity.getSecurityConfig();
         securityConfig.setServerCert(BaseEncoding.base64().encode(tlsSecurityService.readServerCert(stack.getId()).getBytes()));

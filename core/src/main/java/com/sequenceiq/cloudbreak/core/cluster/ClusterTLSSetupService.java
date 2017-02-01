@@ -64,7 +64,7 @@ public class ClusterTLSSetupService {
             HostOrchestrator hostOrchestrator = hostOrchestratorResolver.get(stack.getOrchestrator().getType());
             InstanceGroup gateway = stack.getGatewayInstanceGroup();
             InstanceMetaData gatewayInstance = gateway.getInstanceMetaData().iterator().next();
-            GatewayConfig gatewayConfig = gatewayConfigService.getGatewayConfig(stack, gatewayInstance, stack.getCluster().getEnableKnoxGateway());
+//            GatewayConfig gatewayConfig = gatewayConfigService.getGatewayConfig(stack, gatewayInstance, stack.getCluster().getEnableKnoxGateway());
 
 //            try {
 //                hostOrchestrator.setupTLS(gatewayConfig, nodes, clusterDeletionBasedExitCriteriaModel(stack.getId(), null));

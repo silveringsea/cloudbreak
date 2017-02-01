@@ -301,7 +301,6 @@ public class StackService {
             MDCBuilder.buildMdcContext(savedStack);
             if (!"BYOS".equals(stack.cloudPlatform())) {
                 instanceGroupRepository.save(savedStack.getInstanceGroups());
-                tlsSecurityService.copyClientKeys(stack.getId());
 
                 SecurityConfig securityConfig = tlsSecurityService.storeSSHKeys(stack.getId());
                 securityConfig.setSaltPassword(PasswordUtil.generatePassword());
