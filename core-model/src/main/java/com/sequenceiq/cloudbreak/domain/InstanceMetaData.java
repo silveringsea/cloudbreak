@@ -12,6 +12,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 
+import com.sequenceiq.cloudbreak.api.model.InstanceMetadataType;
 import com.sequenceiq.cloudbreak.api.model.InstanceStatus;
 
 @Entity
@@ -95,6 +96,10 @@ public class InstanceMetaData implements ProvisionEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private InstanceStatus instanceStatus;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private InstanceMetadataType instanceMetadataType;
 
     private String localityIndicator;
 
@@ -265,5 +270,13 @@ public class InstanceMetaData implements ProvisionEntity {
             return privateIp;
         }
         return publicIp;
+    }
+
+    public InstanceMetadataType getInstanceMetadataType() {
+        return instanceMetadataType;
+    }
+
+    public void setInstanceMetadataType(InstanceMetadataType instanceMetadataType) {
+        this.instanceMetadataType = instanceMetadataType;
     }
 }

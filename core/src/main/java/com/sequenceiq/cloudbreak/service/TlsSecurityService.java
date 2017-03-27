@@ -71,7 +71,6 @@ public class TlsSecurityService {
             securityConfig.setClientCert(BaseEncoding.base64().encode(readClientCert(stackId).getBytes()));
             securityConfig.setCloudbreakSshPrivateKey(BaseEncoding.base64().encode(readPrivateSshKey(stackId).getBytes()));
             securityConfig.setCloudbreakSshPublicKey(BaseEncoding.base64().encode(readPublicSshKey(stackId).getBytes()));
-
             return securityConfig;
         } catch (IOException | JSchException e) {
             throw new CloudbreakSecuritySetupException("Failed to generate temporary SSH key pair.", e);
