@@ -12,6 +12,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 
+import org.hibernate.annotations.Type;
+
 import com.sequenceiq.cloudbreak.api.model.InstanceMetadataType;
 import com.sequenceiq.cloudbreak.api.model.InstanceStatus;
 
@@ -68,7 +70,11 @@ import com.sequenceiq.cloudbreak.api.model.InstanceStatus;
                 query = "SELECT i FROM InstanceMetaData i "
                         + "WHERE i.instanceGroup.stack.id= :stackId "
                         + "AND i.privateIp= :privateAddress "
-                        + "AND i.instanceStatus <> 'TERMINATED' ")
+                        + "AND i.instanceStatus <> 'TERMINATED' "),
+        @NamedQuery(
+                name = "InstanceMetaData.getServerCertByStackId",
+                query = "SELECT i.serverCert FROM InstanceMetaData i "
+                        + "WHERE i.instanceGroup.stack.id= :stackId")
 })
 public class InstanceMetaData implements ProvisionEntity {
 
@@ -93,6 +99,10 @@ public class InstanceMetaData implements ProvisionEntity {
 
     private String discoveryFQDN;
 
+    @Type(type = "encrypted_string")
+    @Column(columnDefinition = "TEXT")
+    private String serverCert;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private InstanceStatus instanceStatus;
@@ -111,7 +121,6 @@ public class InstanceMetaData implements ProvisionEntity {
     private Long terminationDate;
 
     public InstanceMetaData() {
-
     }
 
     public InstanceGroup getInstanceGroup() {
@@ -278,5 +287,13 @@ public class InstanceMetaData implements ProvisionEntity {
 
     public void setInstanceMetadataType(InstanceMetadataType instanceMetadataType) {
         this.instanceMetadataType = instanceMetadataType;
+    }
+
+    public String getServerCert() {
+        return serverCert;
+    }
+
+    public void setServerCert(String serverCert) {
+        this.serverCert = serverCert;
     }
 }
